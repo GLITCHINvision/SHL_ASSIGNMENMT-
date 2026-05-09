@@ -1,64 +1,66 @@
 # SHL Assessment Agent
 
-A professional conversational AI agent that helps users find the right SHL assessments for their needs. Built with FastAPI, Google Gemini 2.5 Flash, and comprehensive validation.
+A conversational AI agent that helps users find the right SHL assessments for their needs. Built with FastAPI and Google Gemini 2.5 Flash.
 
-##  Quick Start
+## Quick Start
 
 ```bash
-
+# Install dependencies
 pip install -r requirements.txt
 
+# Configure API key
 cp .env.example .env
+# Edit .env with your GEMINI_API_KEY
 
-
+# Start the server
 python start_server.py
 
-
-python demo.py
-
+# Run tests in another terminal
 python test_agent.py
 ```
 
-##  Features
+## Features
 
-- **Conversational Interface**: Natural language queries for assessment recommendations
+- **Conversational Interface**: Multi-turn conversations with clarifying questions
 - **SHL Catalog Integration**: Access to 377+ professional assessments
-- **Schema Validation**: Strict JSON responses with Pydantic models
-- **Rate Limit Handling**: Exponential backoff for API reliability
-- **Stateless Design**: Ready for horizontal scaling
-- **Interactive Documentation**: FastAPI auto-generated API docs
+- **Schema Validation**: Strict JSON responses with Pydantic
+- **Stateless Design**: Ready for deployment
+- **Interactive API Docs**: FastAPI auto-generated documentation
 
-##  Architecture
+## Architecture
 
 ### Core Components
 
-1. **main.py** - FastAPI server with chat endpoint
-2. **catalog_manager.py** - SHL assessment catalog loader
-3. **test_agent.py** - Unit tests and validation
-4. **demo.py** - Interactive conversation demo
-5. **overview.py** - Project structure explanation
+1. **main.py** - FastAPI server with /health and /chat endpoints
+2. **catalog_manager.py** - SHL assessment catalog loader and indexing
+3. **test_agent.py** - Unit tests and API validation
+4. **test_all_traces.py** - Tests against 10 sample conversations
+5. **run_project.py** - Full test runner
+6. **start_server.py** - Server startup script
 
 ### Technology Stack
 
 - **Backend**: FastAPI (async web framework)
 - **LLM**: Google Gemini 2.5 Flash
-- **Validation**: Pydantic (data schemas)
-- **Server**: Uvicorn (ASGI server)
-- **Config**: python-dotenv (environment variables)
+- **Validation**: Pydantic (strict schemas)
+- **Server**: Uvicorn (ASGI)
+- **Config**: python-dotenv
 
-##  API Endpoints
+## API Endpoints
 
 ### Health Check
 ```http
 GET /health
 ```
-Response: `{"status": "ok"}`
+**Response**: `{"status": "ok"}`
 
-### Chat Interface
+### Chat
 ```http
 POST /chat
-Content-Type: application/json
+```
 
+**Request**:
+```json
 {
   "messages": [
     {"role": "user", "content": "We need assessments for senior leadership"}
@@ -66,16 +68,16 @@ Content-Type: application/json
 }
 ```
 
-Response:
+**Response**:
 ```json
 {
-  "reply": "Happy to help narrow that down. Who is this meant for?",
+  "reply": "To provide the most relevant recommendations, could you tell me...",
   "recommendations": [],
   "end_of_conversation": false
 }
 ```
 
-##  Assessment Types
+## Assessment Types
 
 - **A** - Ability Tests
 - **K** - Knowledge Tests
@@ -85,78 +87,31 @@ Response:
 - **B** - Behavioral Tests
 - **D** - Development Tools
 
-##  Testing
+## Testing
 
 ```bash
 # Unit tests
 python test_agent.py
 
-# Trace validation (10 conversation scenarios)
+# Full trace validation (10 conversations)
 python test_all_traces.py
 
-# Interactive demo
-python demo.py
+# Complete test suite
+python run_project.py
 ```
 
-##  Project Structure
+## Project Structure
 
 ```
 SHL ASSIGNMENT/
-├── main.py                 # FastAPI server
-├── catalog_manager.py      # SHL catalog loader
-├── test_agent.py          # Unit tests
-├── demo.py                # Conversation demo
-├── overview.py            # Project explanation
-├── requirements.txt       # Dependencies
-├── start_server.py       # Server launcher
-├── GenAI_SampleConversations/  # Test traces
-└── README.md              # This file
+├── main.py                      # FastAPI server
+├── catalog_manager.py           # Catalog loader
+├── test_agent.py               # Unit tests
+├── test_all_traces.py          # Trace validation
+├── run_project.py              # Test runner
+├── start_server.py             # Server launcher
+├── requirements.txt            # Dependencies
+├── .env.example                # Config template
+├── README.md                   # Documentation
+└── GenAI_SampleConversations/  # 10 test traces
 ```
-
-##  How It Works
-
-1. **Catalog Loading**: Fetches and indexes SHL assessments
-2. **Conversation Processing**: Uses Gemini LLM with embedded catalog
-3. **Response Validation**: Ensures schema compliance and catalog accuracy
-4. **Recommendation Generation**: Returns 1-10 relevant assessments
-5. **Turn Management**: Enforces 8-turn conversation limit
-
-##  Interactive Documentation
-
-Visit `http://localhost:8000/docs` for:
-- Live API testing
-- Request/response schemas
-- Example payloads
-- Authentication details
-
-##  Performance
-
-- **Response Time**: <2 seconds per request
-- **Accuracy**: 100% catalog validation
-- **Reliability**: Exponential backoff for rate limits
-- **Scalability**: Stateless design for horizontal scaling
-
-##  Configuration
-
-Create `.env` file:
-```env
-GOOGLE_API_KEY=your_api_key_here
-```
-
-##  Troubleshooting
-
-- **Server won't start**: Check GOOGLE_API_KEY in .env
-- **Import errors**: Run `pip install -r requirements.txt`
-- **Test failures**: Ensure server is running on port 8000
-- **Rate limits**: Agent handles automatically with backoff
-
-##  Support
-
-For issues or questions:
-1. Check the overview: `python overview.py`
-2. Run tests: `python test_agent.py`
-3. Review API docs: `http://localhost:8000/docs`
-
----
-
-**Built for SHL Assessment Assignment** - Professional, tested, and production-ready.
