@@ -46,6 +46,48 @@ python test_agent.py
 - **Server**: Uvicorn (ASGI)
 - **Config**: python-dotenv
 
+## Example Conversation
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                  SENIOR LEADERSHIP ASSESSMENT                │
+└─────────────────────────────────────────────────────────────┘
+
+USER (Turn 1):
+  "We need a solution for senior leadership."
+
+AGENT:
+  "Happy to help narrow that down. Who is this meant for?"
+  • recommendations: none yet
+
+───────────────────────────────────────────────────────────────
+
+USER (Turn 2):
+  "The pool consists of CXOs, director-level positions;
+   people with more than 15 years of experience."
+
+AGENT:
+  "For such roles, the OPQ32r is the right instrument...
+   Is this for selection or developmental feedback?"
+  • recommendations: none yet
+
+───────────────────────────────────────────────────────────────
+
+USER (Turn 3):
+  "Selection — comparing candidates against a leadership benchmark."
+
+AGENT:
+  "For selection with a leadership benchmark, here are
+   the relevant assessments:"
+  
+  ✓ Occupational Personality Questionnaire OPQ32r (P)
+  ✓ OPQ Universal Competency Report 2.0 (P)
+  ✓ OPQ Leadership Report (P)
+  
+  • recommendations: 3 assessments returned
+  • end_of_conversation: false
+```
+
 ## API Endpoints
 
 ### Health Check
@@ -86,6 +128,53 @@ POST /chat
 - **C** - Competency Tests
 - **B** - Behavioral Tests
 - **D** - Development Tools
+
+## System Architecture
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                      CLIENT REQUEST                           │
+└────────────────────────┬─────────────────────────────────────┘
+                         │
+                         ▼
+         ┌───────────────────────────────┐
+         │   FastAPI Server (main.py)    │
+         │ ┌─────────────────────────┐   │
+         │ │  POST /chat             │   │
+         │ │  GET /health            │   │
+         │ │  (Interactive /docs)    │   │
+         │ └─────────────────────────┘   │
+         └───────────────┬───────────────┘
+                         │
+        ┌────────────────┼────────────────┐
+        │                │                │
+        ▼                ▼                ▼
+  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+  │  Conversation │ │ Pydantic    │ │ Catalog      │
+  │  History     │ │ Validation  │ │ Manager      │
+  │  Processing  │ │ (strict     │ │ (377+ assess)│
+  │              │ │  schemas)   │ │              │
+  └────────┬─────┘ └──────────────┘ └──────┬───────┘
+           │                               │
+           └───────────────┬────────────────┘
+                           │
+                           ▼
+           ┌───────────────────────────────┐
+           │  Google Gemini 2.5 Flash      │
+           │  (LLM Processing)             │
+           │  • Multi-turn conversations   │
+           │  • Embedded SHL catalog       │
+           │  • JSON response generation   │
+           └───────────────┬───────────────┘
+                           │
+                           ▼
+         ┌───────────────────────────────┐
+         │  Response (JSON)              │
+         │  • Agent reply                │
+         │  • Recommendations (1-10)     │
+         │  • End conversation flag      │
+         └───────────────────────────────┘
+```
 
 ## Testing
 
