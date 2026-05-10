@@ -6,7 +6,7 @@ import json
 def run_tests():
     print("Starting SHL Assessment Agent Verification...")
     
-    # 1. Health Check
+    
     try:
         health = requests.get("http://localhost:8000/health")
         print(f"Health Check: {health.json()}")
@@ -14,7 +14,7 @@ def run_tests():
         print("Server not found. Please run 'python main.py' first.")
         return
 
-    # 2. Run Comprehensive Traces
+   
     print("\n--- Running all 10 Conversation Traces ---")
     print("Note: Adding 5s delay between requests to respect Free Tier TPM limits.")
     

@@ -10,13 +10,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Initialize Catalog
+
 catalog_manager = CatalogManager()
 CATALOG_DATA = catalog_manager.get_catalog_str()
 
-# Configure LLM
+
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-# Using gemini-2.5-flash for optimal performance and cost-efficiency
+
 model = genai.GenerativeModel('gemini-2.5-flash')
 
 app = FastAPI()
@@ -38,7 +38,7 @@ class ChatResponse(BaseModel):
     recommendations: List[Recommendation] = Field(default_factory=list)
     end_of_conversation: bool = False
 
-# System prompt with strict JSON requirements
+
 SYSTEM_PROMPT = f"""You are an SHL Assessment Expert guiding recruiters and hiring managers to the right assessments.
 
 ### CATALOG (strictly use ONLY these items):
@@ -74,7 +74,7 @@ def extract_json_from_response(text: str) -> dict:
     """Extract valid JSON from LLM response, handling markdown and extra whitespace."""
     text = text.strip()
     
-    # Remove markdown code blocks
+    
     if text.startswith("```json"):
         text = text[7:]
     if text.startswith("```"):
@@ -84,7 +84,7 @@ def extract_json_from_response(text: str) -> dict:
     
     text = text.strip()
     
-    # Try to parse JSON
+  
     try:
         return json.loads(text)
     except json.JSONDecodeError as e:
@@ -112,7 +112,7 @@ async def chat(request: ChatRequest):
     Max turns: 8 (user + assistant combined).
     """
     try:
-        # Validate turn count (8 max including this request)
+       
         if len(request.messages) >= 8:
             return ChatResponse(
                 reply="Conversation limit reached. Please start a new conversation.",
@@ -120,8 +120,7 @@ async def chat(request: ChatRequest):
                 end_of_conversation=True
             )
         
-        # Build conversation for Gemini
-        # Gemini API expects messages in a specific format
+       
         conversation = []
         for msg in request.messages:
             conversation.append({
@@ -129,17 +128,17 @@ async def chat(request: ChatRequest):
                 "parts": [msg.content]
             })
         
-        # Create chat session with system instruction
+
         chat_session = model.start_chat(
             history=conversation[:-1] if len(conversation) > 0 else []
         )
         
-        # Send the last user message with full context
+       
         user_message = conversation[-1]["parts"][0] if conversation else ""
         
         full_prompt = f"{SYSTEM_PROMPT}\n\n[Previous conversation context embedded above]\n\nUser: {user_message}\n\nRespond with ONLY the JSON object, no other text."
         
-        # Call LLM with retry logic for rate limits
+
         max_retries = 3
         response_text = None
         
@@ -151,42 +150,40 @@ async def chat(request: ChatRequest):
             except Exception as e:
                 error_str = str(e)
                 if "429" in error_str and attempt < max_retries - 1:
-                    # Rate limit - wait and retry
-                    time.sleep(2 ** attempt)  # Exponential backoff: 1s, 2s, 4s
+                
+                    time.sleep(2 ** attempt)  
                     continue
-                # Re-raise other errors
+               
                 raise e
         
         if response_text is None:
             raise ValueError("No response from model")
         
-        # Extract and validate JSON
+ 
         data = extract_json_from_response(response_text)
-        
-        # Validate and sanitize response
-        # Ensure recommendations is a list
+      
         if not isinstance(data.get("recommendations"), list):
             data["recommendations"] = []
         
-        # Ensure end_of_conversation is boolean
+       
         if not isinstance(data.get("end_of_conversation"), bool):
             data["end_of_conversation"] = False
         
-        # Ensure reply is string
+   
         if not isinstance(data.get("reply"), str):
             data["reply"] = "I encountered an issue processing your request."
         
-        # Validate recommendations against catalog
+      
         validated_recs = []
         for rec in data.get("recommendations", []):
             if all(k in rec for k in ["name", "url", "test_type"]):
-                # Only include if from catalog (basic check)
+               
                 if catalog_manager.find_by_name(rec["name"]):
                     validated_recs.append(Recommendation(**rec))
         
         data["recommendations"] = validated_recs
         
-        # Create response
+    
         response = ChatResponse(**data)
         return response
         
