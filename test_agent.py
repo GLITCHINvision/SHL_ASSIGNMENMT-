@@ -31,14 +31,14 @@ def test_chat(messages, test_name=""):
         
         data = response.json()
         
-        # Validate response schema
+     
         required_fields = ["reply", "recommendations", "end_of_conversation"]
         for field in required_fields:
             if field not in data:
                 print(f"✗ {test_name}: Missing field '{field}'")
                 return False
         
-        # Validate types
+
         if not isinstance(data["reply"], str):
             print(f"✗ {test_name}: 'reply' must be string")
             return False
@@ -49,7 +49,7 @@ def test_chat(messages, test_name=""):
             print(f"✗ {test_name}: 'end_of_conversation' must be bool")
             return False
         
-        # Validate recommendations
+ 
         for rec in data["recommendations"]:
             if not all(k in rec for k in ["name", "url", "test_type"]):
                 print(f"✗ {test_name}: Invalid recommendation format")
@@ -73,7 +73,7 @@ if __name__ == "__main__":
     print("SHL Assessment Agent - Unit Tests")
     print("=" * 60)
     
-    # Test 1: Health Check
+    
     print("\n[TEST 1] Health Check")
     health_ok = test_health()
     
@@ -81,21 +81,21 @@ if __name__ == "__main__":
         print("\nServer not running. Start with: python -m uvicorn main:app --reload")
         sys.exit(1)
     
-    # Test 2: Simple Query (should ask clarifying questions)
+
     print("\n[TEST 2] Vague Query (should NOT recommend)")
     test_chat(
         [{"role": "user", "content": "I need an assessment."}],
         "Vague Query Test"
     )
     
-    # Test 3: Senior Leadership (from C1)
+    
     print("\n[TEST 3] Senior Leadership (C1 - Turn 1)")
     test_chat(
         [{"role": "user", "content": "We need a solution for senior leadership."}],
         "Senior Leadership Turn 1"
     )
     
-    # Test 4: Comparison (should use catalog data)
+ 
     print("\n[TEST 4] Comparison Test")
     test_chat(
         [
@@ -106,7 +106,7 @@ if __name__ == "__main__":
         "Comparison Test"
     )
     
-    # Test 5: Refinement (should update recommendations)
+   
     print("\n[TEST 5] Refinement Test")
     test_chat(
         [
