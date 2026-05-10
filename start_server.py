@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 """
 Startup script for SHL Assessment Agent
 Runs the FastAPI server with proper configuration
@@ -27,7 +27,7 @@ def main():
     print("SHL Assessment Agent - Starting Server")
     print("=" * 60)
     
-    # Check environment
+   
     if not check_env():
         sys.exit(1)
     
@@ -38,7 +38,7 @@ def main():
     print("✓ API docs: http://localhost:8000/docs")
     print("\nPress Ctrl+C to stop the server.\n")
     
-    # Run the server
+ 
     try:
         subprocess.run(
             [sys.executable, "-m", "uvicorn", "main:app", "--reload", "--host", "127.0.0.1", "--port", "8000"],
