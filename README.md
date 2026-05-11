@@ -10,7 +10,7 @@ pip install -r requirements.txt
 
 # Configure API key
 cp .env.example .env
-# Edit .env with your GEMINI_API_KEY
+
 
 # Start the server
 python start_server.py
